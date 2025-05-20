@@ -1,0 +1,131 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2, h3 {
+  color: #333;
+}
+
+textarea {
+  width: 100%;
+  min-height: 200px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.chord-panel {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.chord-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chord-button {
+  background-color: #2196F3;
+  cursor: grab;
+}
+
+.lyrics-line {
+  position: relative;
+  margin-bottom: 30px;
+  min-height: 24px;
+}
+
+.chords-row {
+  position: relative;
+  height: 24px;
+  margin-bottom: 5px;
+}
+
+.chord {
+  position: absolute;
+  top: 0;
+  color: #2196F3;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 2px 5px;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 3px;
+}
+
+.chord:hover {
+  background: rgba(33, 150, 243, 0.2);
+}
+
+.lyrics-text {
+  white-space: pre-wrap;
+}
+
+.preview {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.saved-tabs ul {
+  list-style: none;
+  padding: 0;
+}
+
+.saved-tabs li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.saved-tabs button {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.saved-tabs button:last-child {
+  background-color: #f44336;
+}
