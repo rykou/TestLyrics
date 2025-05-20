@@ -9,6 +9,9 @@ function App() {
   const [tabName, setTabName] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [selectedPosition, setSelectedPosition] = useState({ lineIndex: 0, charPosition: 0 })
+  const [customChord, setCustomChord] = useState('')
+  const [showCustomInput, setShowCustomInput] = useState(false)
+  const customChordInputRef = useRef(null)
   const lyricsRef = useRef(null)
 
   useEffect(() => {
@@ -40,6 +43,15 @@ function App() {
     
     setChords(newChords)
     setShowModal(false)
+    setShowCustomInput(false)
+    setCustomChord('')
+  }
+
+  const handleCustomChordSubmit = (e) => {
+    e.preventDefault()
+    if (customChord.trim()) {
+      addChord(customChord)
+    }
   }
 
   const removeChord = (lineIndex, chordIndex) => {
@@ -187,20 +199,63 @@ function App() {
         <div className="modal-overlay">
           <div className="modal">
             <h3>Select Chord</h3>
-            <div className="modal-chord-buttons">
-              {chordTypes.map((chord) => (
-                <button
-                  key={chord}
-                  className="chord-button"
-                  onClick={() => addChord(chord)}
+            
+            {showCustomInput ? (
+              <form onSubmit={handleCustomChordSubmit} className="custom-chord-form">
+                <input
+                  type="text"
+                  ref={customChordInputRef}
+                  value={customChord}
+                  onChange={(e) => setCustomChord(e.target.value)}
+                  placeholder="Enter custom chord..."
+                  autoFocus
+                />
+                <div className="custom-chord-buttons">
+                  <button type="submit" className="submit-button">Add Chord</button>
+                  <button 
+                    type="button" 
+                    className="cancel-button"
+                    onClick={() => {
+                      setShowCustomInput(false)
+                      setCustomChord('')
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <>
+                <div className="modal-chord-buttons">
+                  {chordTypes.map((chord) => (
+                    <button
+                      key={chord}
+                      className="chord-button"
+                      onClick={() => addChord(chord)}
+                    >
+                      {chord}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  className="custom-chord-trigger"
+                  onClick={() => {
+                    setShowCustomInput(true)
+                    setTimeout(() => customChordInputRef.current?.focus(), 0)
+                  }}
                 >
-                  {chord}
+                  + Custom Chord
                 </button>
-              ))}
-            </div>
+              </>
+            )}
+            
             <button 
               className="close-button"
-              onClick={() => setShowModal(false)}
+              onClick={() => {
+                setShowModal(false)
+                setShowCustomInput(false)
+                setCustomChord('')
+              }}
             >
               Close
             </button>
