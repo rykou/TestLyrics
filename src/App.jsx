@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { jsPDF } from 'jspdf'
 import './modal.css'
-import { FaLinkedin, FaPaypal } from 'react-icons/fa'
+import { FaLinkedin, FaPaypal, FaCopy, FaPrint, FaFileExport } from 'react-icons/fa'
 
 function App() {
   const [lyrics, setLyrics] = useState('')
@@ -49,7 +48,6 @@ function App() {
     e.stopPropagation()
     const chord = chords[lineIndex][chordIndex]
     
-    // Set a timeout to determine if this is a click or drag
     const timeoutId = setTimeout(() => {
       setIsDragging(true)
       setDraggingChord({
@@ -58,7 +56,7 @@ function App() {
         originalPosition: chord.position,
         startX: e.clientX
       })
-    }, 200) // 200ms delay to distinguish between click and drag
+    }, 200)
     
     const handleMouseUp = () => {
       clearTimeout(timeoutId)
@@ -85,14 +83,13 @@ function App() {
   }
 
   const handleChordMouseUp = (e, lineIndex, chordIndex) => {
-    e.stopPropagation() // Prevent click event from bubbling to lyrics line
+    e.stopPropagation()
     if (draggingChord) {
       setDraggingChord(null)
       setIsDragging(false)
       return
     }
     
-    // If not dragging, treat as click to delete
     removeChord(lineIndex, chordIndex)
   }
 
@@ -168,34 +165,65 @@ function App() {
     localStorage.setItem('savedTabs', JSON.stringify(updatedTabs))
   }
 
-  const exportToPDF = () => {
-    const doc = new jsPDF()
-    let y = 20
-    
-    doc.setFontSize(16)
-    doc.text('TigerLyrics - Song Lyrics with Chords', 105, y, { align: 'center' })
-    y += 20
-    
-    doc.setFontSize(12)
-    const lines = lyrics.split('\n')
-    
-    lines.forEach((line, lineIndex) => {
+  const exportToHTML = () => {
+    try {
+      const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TigerLyrics - ${tabName || 'Untitled Tab'}</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .chord-line {
+      font-weight: bold;
+      margin-bottom: 5px;
+      white-space: pre;
+      font-family: monospace;
+    }
+    .lyrics-line {
+      margin-bottom: 20px;
+      white-space: pre;
+      font-family: monospace;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>TigerLyrics</h1>
+  <h2>${tabName || 'Untitled Tab'}</h2>
+  <div>
+    ${lyrics.split('\n').map((line, lineIndex) => {
       const lineChords = chords[lineIndex] || []
-      
+      let chordLine = ''
       lineChords.forEach(chordObj => {
-        doc.text(chordObj.chord, 20 + (chordObj.position * 2), y - 5)
+        const spaces = chordObj.position - chordLine.length
+        chordLine += ' '.repeat(Math.max(0, spaces)) + chordObj.chord
       })
-      
-      doc.text(line, 20, y)
-      y += 10
-      
-      if (y > 250) {
-        doc.addPage()
-        y = 20
-      }
-    })
-    
-    doc.save('tigerlyrics.pdf')
+      return `
+        <div class="chord-line">${chordLine}</div>
+        <div class="lyrics-line">${line}</div>
+      `
+    }).join('')}
+  </div>
+</body>
+</html>
+      `
+
+      const newWindow = window.open()
+      newWindow.document.write(htmlContent)
+      newWindow.document.close()
+    } catch (error) {
+      console.error('Export error:', error)
+      alert('Export failed. Please try again.')
+    }
   }
 
   const renderLyricsWithChords = () => {
@@ -279,7 +307,7 @@ function App() {
           onChange={(e) => setTabName(e.target.value)}
         />
         <button onClick={saveTab}>Save Tab</button>
-        <button onClick={exportToPDF}>Export to PDF</button>
+        <button onClick={exportToHTML}><FaFileExport /> Export HTML</button>
       </div>
 
       <textarea
