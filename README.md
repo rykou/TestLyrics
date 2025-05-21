@@ -1,8 +1,9 @@
 # Lyrics and Chords Editor
 ![msedge_b8BEuKT5Nu](https://github.com/user-attachments/assets/138ad571-030b-41d4-a025-58e12d09f0cc)
-
+ 
 A React application for editing song lyrics with chord annotations.
-Buy me a Pizza! https://www.paypal.com/donate/?hosted_button_id=JR45EMHSW7YAL
+## Buy me a Pizza!
+ https://www.paypal.com/donate/?hosted_button_id=JR45EMHSW7YAL
 ## Features
 
 - Add chords to lyrics by clicking positions
