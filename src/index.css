@@ -9,6 +9,8 @@
   --success: #4caf50;
   --warning: #ff9800;
   --error: #f44336;
+  --linkedin: #0a66c2;
+  --paypal: #00457c;
 }
 
 body {
@@ -32,6 +34,59 @@ body {
 
 .container:hover {
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.creator-header {
+  background: var(--highlight);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.creator-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.creator-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.creator-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.3s ease;
+}
+
+.creator-links a:hover {
+  transform: translateY(-2px);
+}
+
+.icon {
+  font-size: 1.2rem;
+}
+
+.paypal-button {
+  background: var(--paypal);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.paypal-button:hover {
+  background: #003366;
 }
 
 h1, h2, h3 {

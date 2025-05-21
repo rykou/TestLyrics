@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { jsPDF } from 'jspdf'
 import './modal.css'
+import { FaLinkedin, FaPaypal } from 'react-icons/fa'
 
 function App() {
   const [lyrics, setLyrics] = useState('')
@@ -52,7 +53,6 @@ function App() {
     setShowCustomInput(false)
     setCustomChord('')
 
-    // Save custom chord if it's not in the standard list
     const standardChords = [
       'A', 'Am', 'A7', 'B', 'Bm', 'B7', 'C', 'Cm', 'C7',
       'D', 'Dm', 'D7', 'E', 'Em', 'E7', 'F', 'Fm', 'F7',
@@ -85,7 +85,7 @@ function App() {
     const newTab = {
       name: tabName,
       lyrics,
-      chords: [...chords], // Make a copy of current chords
+      chords: [...chords],
       date: new Date().toISOString()
     }
     
@@ -93,14 +93,14 @@ function App() {
     setSavedTabs(updatedTabs)
     localStorage.setItem('savedTabs', JSON.stringify(updatedTabs))
     setTabName('')
-    setChords([]) // Clear current chords after saving
-    setLyrics('') // Clear lyrics after saving
+    setChords([])
+    setLyrics('')
   }
 
   const loadTab = (index) => {
     const tab = savedTabs[index]
     setLyrics(tab.lyrics)
-    setChords(tab.chords || []) // Load saved chords or empty array
+    setChords(tab.chords || [])
   }
 
   const deleteTab = (index) => {
@@ -175,6 +175,21 @@ function App() {
 
   return (
     <div className="container">
+      <div className="creator-header">
+        <div className="creator-info">
+          <span>Created by Murylo Batista</span>
+          <div className="creator-links">
+            <a href="https://www.linkedin.com/in/murylo-batista-43097b53/" target="_blank" rel="noopener noreferrer">
+              <FaLinkedin className="icon" />
+            </a>
+            <a href="https://www.paypal.com/donate/?hosted_button_id=JR45EMHSW7YAL" target="_blank" rel="noopener noreferrer" className="paypal-button">
+              <FaPaypal className="icon" />
+              <span>BUY ME A pizza</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
       <h1>TigerLyrics - Lyrics and Chords Editor</h1>
       
       <div className="controls">
