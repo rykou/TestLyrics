@@ -15,8 +15,15 @@ function App() {
   const [recentChords, setRecentChords] = useState([])
   const [draggingChord, setDraggingChord] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [metronomeBPM, setMetronomeBPM] = useState(60)
+  const [isMetronomePlaying, setIsMetronomePlaying] = useState(false)
+  const [beatCount, setBeatCount] = useState(0)
   const customChordInputRef = useRef(null)
   const lyricsRef = useRef(null)
+  const metronomeIntervalRef = useRef(null)
+  const audioContextRef = useRef(null)
+  const oscillatorRef = useRef(null)
+  const gainNodeRef = useRef(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('savedTabs')
@@ -33,7 +40,63 @@ function App() {
     if (recent) {
       setRecentChords(JSON.parse(recent))
     }
+
+    // Initialize audio context
+    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
+    gainNodeRef.current = audioContextRef.current.createGain()
+    gainNodeRef.current.gain.value = 0.5
+    gainNodeRef.current.connect(audioContextRef.current.destination)
+
+    return () => {
+      if (metronomeIntervalRef.current) {
+        clearInterval(metronomeIntervalRef.current)
+      }
+      if (audioContextRef.current) {
+        audioContextRef.current.close()
+      }
+    }
   }, [])
+
+  const playMetronomeSound = (isAccent) => {
+    if (!audioContextRef.current) return
+    
+    oscillatorRef.current = audioContextRef.current.createOscillator()
+    oscillatorRef.current.type = 'sine'
+    oscillatorRef.current.frequency.value = isAccent ? 880 : 440
+    oscillatorRef.current.connect(gainNodeRef.current)
+    oscillatorRef.current.start()
+    oscillatorRef.current.stop(audioContextRef.current.currentTime + 0.1)
+  }
+
+  const toggleMetronome = () => {
+    if (isMetronomePlaying) {
+      clearInterval(metronomeIntervalRef.current)
+      metronomeIntervalRef.current = null
+      setIsMetronomePlaying(false)
+      setBeatCount(0)
+    } else {
+      const interval = 60000 / metronomeBPM // Convert BPM to milliseconds
+      metronomeIntervalRef.current = setInterval(() => {
+        setBeatCount(prev => {
+          const newBeat = (prev % 4) + 1
+          playMetronomeSound(newBeat === 1)
+          return newBeat
+        })
+      }, interval)
+      setIsMetronomePlaying(true)
+    }
+  }
+
+  const handleBPMChange = (e) => {
+    const value = parseInt(e.target.value)
+    if (!isNaN(value) && value >= 1 && value <= 300) {
+      setMetronomeBPM(value)
+      if (isMetronomePlaying) {
+        toggleMetronome()
+        toggleMetronome()
+      }
+    }
+  }
 
   const handleLyricsClick = (e, lineIndex) => {
     if (isDragging || draggingChord) {
@@ -326,6 +389,35 @@ function App() {
         />
         <button onClick={saveTab}>Save Tab</button>
         <button onClick={exportToHTML}><FaFileExport /> Export HTML</button>
+      </div>
+
+      <div className="metronome-controls">
+        <div className="metronome-input">
+          <label>Metronome (BPM):</label>
+          <input
+            type="number"
+            min="1"
+            max="300"
+            value={metronomeBPM}
+            onChange={handleBPMChange}
+          />
+        </div>
+        <button 
+          onClick={toggleMetronome}
+          className={isMetronomePlaying ? 'metronome-active' : ''}
+        >
+          {isMetronomePlaying ? 'Stop Metronome' : 'Start Metronome'}
+        </button>
+        {isMetronomePlaying && (
+          <div className="beat-indicator">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div 
+                key={i}
+                className={`beat ${beatCount === i + 1 ? 'active' : ''}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <textarea

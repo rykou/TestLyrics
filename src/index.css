@@ -11,6 +11,7 @@
   --error: #f44336;
   --linkedin: #0a66c2;
   --paypal: #00457c;
+  --metronome-active: #ff5722;
 }
 
 body {
@@ -93,6 +94,59 @@ h1, h2, h3 {
   color: var(--text);
   font-weight: 700;
   margin-bottom: 1.5rem;
+}
+
+.metronome-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: var(--highlight);
+  border-radius: 8px;
+}
+
+.metronome-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metronome-input label {
+  font-weight: 600;
+}
+
+.metronome-input input {
+  width: 60px;
+  padding: 0.5rem;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: var(--primary);
+  color: var(--text);
+  text-align: center;
+}
+
+.metronome-active {
+  background-color: var(--metronome-active) !important;
+}
+
+.beat-indicator {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.beat {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  transition: all 0.2s ease;
+}
+
+.beat.active {
+  background-color: var(--metronome-active);
+  transform: scale(1.2);
 }
 
 textarea {
