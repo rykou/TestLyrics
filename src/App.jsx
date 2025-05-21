@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import './modal.css'
-import { FaLinkedin, FaPaypal, FaCopy, FaPrint, FaFileExport } from 'react-icons/fa'
+import { FaLinkedin, FaPaypal, FaCopy, FaPrint, FaFileExport, FaFileImport } from 'react-icons/fa'
 
 function App() {
   const [lyrics, setLyrics] = useState('')
@@ -24,6 +24,7 @@ function App() {
   const audioContextRef = useRef(null)
   const oscillatorRef = useRef(null)
   const gainNodeRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   // Piano notes (C4 to B4)
   const pianoNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -91,6 +92,61 @@ function App() {
       }
     }
   }, [])
+
+  const exportToJSON = () => {
+    const data = {
+      version: '1.0',
+      name: tabName || 'Untitled Tab',
+      lyrics,
+      chords,
+      customNotes,
+      recentChords,
+      createdAt: new Date().toISOString()
+    }
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${tabName || 'tigerlyrics'}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleFileImport = (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      try {
+        const data = JSON.parse(event.target.result)
+        if (data.version !== '1.0') {
+          alert('Unsupported file version')
+          return
+        }
+
+        setLyrics(data.lyrics || '')
+        setChords(data.chords || [])
+        setTabName(data.name || '')
+        setCustomNotes(data.customNotes || [])
+        setRecentChords(data.recentChords || [])
+        
+        // Save custom notes and recent chords to localStorage
+        localStorage.setItem('tigerLyricsCustomNotes', JSON.stringify(data.customNotes || []))
+        localStorage.setItem('tigerLyricsRecentChords', JSON.stringify(data.recentChords || []))
+        
+        alert('Successfully imported tab!')
+      } catch (error) {
+        console.error('Import error:', error)
+        alert('Failed to import file. Invalid format.')
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = '' // Reset input to allow re-importing same file
+  }
 
   const playMetronomeSound = (isAccent) => {
     if (!audioContextRef.current) return
@@ -443,6 +499,15 @@ function App() {
         />
         <button onClick={saveTab}>Save Tab</button>
         <button onClick={exportToHTML}><FaFileExport /> Export HTML</button>
+        <button onClick={exportToJSON}><FaFileExport /> Export JSON</button>
+        <button onClick={() => fileInputRef.current.click()}><FaFileImport /> Import</button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileImport}
+          accept=".json"
+          style={{ display: 'none' }}
+        />
       </div>
 
       <div className="metronome-controls">
