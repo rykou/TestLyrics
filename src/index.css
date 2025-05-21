@@ -192,16 +192,21 @@ button:active {
   top: 0;
   color: var(--text);
   font-weight: 700;
-  cursor: pointer;
+  cursor: grab;
   padding: 0.25rem 0.75rem;
   background: rgba(74, 74, 74, 0.3);
   border-radius: 6px;
   transition: all 0.3s ease;
+  user-select: none;
 }
 
 .chord:hover {
   background: rgba(74, 74, 74, 0.5);
   transform: scale(1.05);
+}
+
+.chord:active {
+  cursor: grabbing;
 }
 
 .lyrics-text {

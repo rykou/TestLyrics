@@ -13,6 +13,8 @@ function App() {
   const [customChord, setCustomChord] = useState('')
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customNotes, setCustomNotes] = useState([])
+  const [draggingChord, setDraggingChord] = useState(null)
+  const [isDragging, setIsDragging] = useState(false)
   const customChordInputRef = useRef(null)
   const lyricsRef = useRef(null)
 
@@ -29,12 +31,69 @@ function App() {
   }, [])
 
   const handleLyricsClick = (e, lineIndex) => {
+    if (isDragging || draggingChord) {
+      setIsDragging(false)
+      setDraggingChord(null)
+      return
+    }
+    
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
     const charPosition = Math.floor(x / 8)
     
     setSelectedPosition({ lineIndex, charPosition })
     setShowModal(true)
+  }
+
+  const handleChordMouseDown = (e, lineIndex, chordIndex) => {
+    e.stopPropagation()
+    const chord = chords[lineIndex][chordIndex]
+    
+    // Set a timeout to determine if this is a click or drag
+    const timeoutId = setTimeout(() => {
+      setIsDragging(true)
+      setDraggingChord({
+        lineIndex,
+        chordIndex,
+        originalPosition: chord.position,
+        startX: e.clientX
+      })
+    }, 200) // 200ms delay to distinguish between click and drag
+    
+    const handleMouseUp = () => {
+      clearTimeout(timeoutId)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+    
+    document.addEventListener('mouseup', handleMouseUp)
+  }
+
+  const handleChordMouseMove = (e) => {
+    if (!draggingChord) return
+    
+    const { lineIndex, chordIndex, startX } = draggingChord
+    const rect = lyricsRef.current.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const newPosition = Math.max(0, Math.min(
+      Math.floor(x / 8),
+      lyrics.split('\n')[lineIndex].length - 1
+    ))
+    
+    const newChords = [...chords]
+    newChords[lineIndex][chordIndex].position = newPosition
+    setChords(newChords)
+  }
+
+  const handleChordMouseUp = (e, lineIndex, chordIndex) => {
+    e.stopPropagation() // Prevent click event from bubbling to lyrics line
+    if (draggingChord) {
+      setDraggingChord(null)
+      setIsDragging(false)
+      return
+    }
+    
+    // If not dragging, treat as click to delete
+    removeChord(lineIndex, chordIndex)
   }
 
   const addChord = (chord) => {
@@ -151,11 +210,13 @@ function App() {
             <span 
               key={chordIndex}
               className="chord"
-              style={{ left: `${chordObj.position * 8}px` }}
-              onClick={(e) => {
-                e.stopPropagation()
-                removeChord(lineIndex, chordIndex)
+              style={{ 
+                left: `${chordObj.position * 8}px`,
+                cursor: 'grab',
+                userSelect: 'none'
               }}
+              onMouseDown={(e) => handleChordMouseDown(e, lineIndex, chordIndex)}
+              onMouseUp={(e) => handleChordMouseUp(e, lineIndex, chordIndex)}
             >
               {chordObj.chord}
             </span>
@@ -165,6 +226,24 @@ function App() {
       </div>
     ))
   }
+
+  useEffect(() => {
+    if (draggingChord) {
+      document.addEventListener('mousemove', handleChordMouseMove)
+      document.addEventListener('mouseup', () => {
+        setDraggingChord(null)
+        setIsDragging(false)
+      })
+      
+      return () => {
+        document.removeEventListener('mousemove', handleChordMouseMove)
+        document.removeEventListener('mouseup', () => {
+          setDraggingChord(null)
+          setIsDragging(false)
+        })
+      }
+    }
+  }, [draggingChord])
 
   const chordTypes = [
     'A', 'Am', 'A7', 'B', 'Bm', 'B7', 'C', 'Cm', 'C7',
