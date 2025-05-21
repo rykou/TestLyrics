@@ -25,6 +25,41 @@ function App() {
   const oscillatorRef = useRef(null)
   const gainNodeRef = useRef(null)
 
+  // Piano notes (C4 to B4)
+  const pianoNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
+  const playNote = (note) => {
+    if (!audioContextRef.current) return
+    
+    const noteFrequencies = {
+      'C': 261.63,
+      'C#': 277.18,
+      'D': 293.66,
+      'D#': 311.13,
+      'E': 329.63,
+      'F': 349.23,
+      'F#': 369.99,
+      'G': 392.00,
+      'G#': 415.30,
+      'A': 440.00,
+      'A#': 466.16,
+      'B': 493.88
+    }
+
+    const osc = audioContextRef.current.createOscillator()
+    const gain = audioContextRef.current.createGain()
+    
+    osc.type = 'sine'
+    osc.frequency.value = noteFrequencies[note] || 440
+    gain.gain.value = 0.3
+    
+    osc.connect(gain)
+    gain.connect(audioContextRef.current.destination)
+    
+    osc.start()
+    osc.stop(audioContextRef.current.currentTime + 0.5)
+  }
+
   useEffect(() => {
     const saved = localStorage.getItem('savedTabs')
     if (saved) {
@@ -335,6 +370,25 @@ function App() {
     ))
   }
 
+  const renderPiano = () => {
+    return (
+      <div className="piano-container">
+        <h3>Piano</h3>
+        <div className="piano">
+          {pianoNotes.map((note) => (
+            <button
+              key={note}
+              className={`piano-key ${note.includes('#') ? 'black-key' : 'white-key'}`}
+              onClick={() => playNote(note)}
+            >
+              {!note.includes('#') && <span className="note-label">{note}</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   useEffect(() => {
     if (draggingChord) {
       document.addEventListener('mousemove', handleChordMouseMove)
@@ -431,6 +485,8 @@ function App() {
         <h3>Preview</h3>
         {renderLyricsWithChords()}
       </div>
+
+      {renderPiano()}
 
       <div className="saved-tabs">
         <h2>Saved Tabs</h2>
