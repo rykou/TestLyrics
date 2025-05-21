@@ -12,6 +12,7 @@ function App() {
   const [customChord, setCustomChord] = useState('')
   const [showCustomInput, setShowCustomInput] = useState(false)
   const [customNotes, setCustomNotes] = useState([])
+  const [recentChords, setRecentChords] = useState([])
   const [draggingChord, setDraggingChord] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   const customChordInputRef = useRef(null)
@@ -26,6 +27,11 @@ function App() {
     const notes = localStorage.getItem('tigerLyricsCustomNotes')
     if (notes) {
       setCustomNotes(JSON.parse(notes))
+    }
+
+    const recent = localStorage.getItem('tigerLyricsRecentChords')
+    if (recent) {
+      setRecentChords(JSON.parse(recent))
     }
   }, [])
 
@@ -109,6 +115,14 @@ function App() {
     setShowCustomInput(false)
     setCustomChord('')
 
+    // Update recent chords
+    const updatedRecent = [
+      chord,
+      ...recentChords.filter(c => c !== chord)
+    ].slice(0, 10)
+    setRecentChords(updatedRecent)
+    localStorage.setItem('tigerLyricsRecentChords', JSON.stringify(updatedRecent))
+
     const standardChords = [
       'A', 'Am', 'A7', 'B', 'Bm', 'B7', 'C', 'Cm', 'C7',
       'D', 'Dm', 'D7', 'E', 'Em', 'E7', 'F', 'Fm', 'F7',
@@ -142,6 +156,7 @@ function App() {
       name: tabName,
       lyrics,
       chords: [...chords],
+      recentChords: [...recentChords],
       date: new Date().toISOString()
     }
     
@@ -157,6 +172,8 @@ function App() {
     const tab = savedTabs[index]
     setLyrics(tab.lyrics)
     setChords(tab.chords || [])
+    setRecentChords(tab.recentChords || [])
+    localStorage.setItem('tigerLyricsRecentChords', JSON.stringify(tab.recentChords || []))
   }
 
   const deleteTab = (index) => {
@@ -274,10 +291,11 @@ function App() {
   }, [draggingChord])
 
   const chordTypes = [
+    ...recentChords,
     'A', 'Am', 'A7', 'B', 'Bm', 'B7', 'C', 'Cm', 'C7',
     'D', 'Dm', 'D7', 'E', 'Em', 'E7', 'F', 'Fm', 'F7',
     'G', 'Gm', 'G7',
-    ...customNotes
+    ...customNotes.filter(note => !recentChords.includes(note))
   ]
 
   return (
