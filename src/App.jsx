@@ -11,6 +11,7 @@ function App() {
   const [selectedPosition, setSelectedPosition] = useState({ lineIndex: 0, charPosition: 0 })
   const [customChord, setCustomChord] = useState('')
   const [showCustomInput, setShowCustomInput] = useState(false)
+  const [customNotes, setCustomNotes] = useState([])
   const customChordInputRef = useRef(null)
   const lyricsRef = useRef(null)
 
@@ -18,6 +19,11 @@ function App() {
     const saved = localStorage.getItem('savedTabs')
     if (saved) {
       setSavedTabs(JSON.parse(saved))
+    }
+    
+    const notes = localStorage.getItem('tigerLyricsCustomNotes')
+    if (notes) {
+      setCustomNotes(JSON.parse(notes))
     }
   }, [])
 
@@ -45,6 +51,19 @@ function App() {
     setShowModal(false)
     setShowCustomInput(false)
     setCustomChord('')
+
+    // Save custom chord if it's not in the standard list
+    const standardChords = [
+      'A', 'Am', 'A7', 'B', 'Bm', 'B7', 'C', 'Cm', 'C7',
+      'D', 'Dm', 'D7', 'E', 'Em', 'E7', 'F', 'Fm', 'F7',
+      'G', 'Gm', 'G7'
+    ]
+    
+    if (!standardChords.includes(chord)) {
+      const updatedNotes = [...new Set([...customNotes, chord])]
+      setCustomNotes(updatedNotes)
+      localStorage.setItem('tigerLyricsCustomNotes', JSON.stringify(updatedNotes))
+    }
   }
 
   const handleCustomChordSubmit = (e) => {
@@ -66,7 +85,7 @@ function App() {
     const newTab = {
       name: tabName,
       lyrics,
-      chords,
+      chords: [...chords], // Make a copy of current chords
       date: new Date().toISOString()
     }
     
@@ -74,12 +93,14 @@ function App() {
     setSavedTabs(updatedTabs)
     localStorage.setItem('savedTabs', JSON.stringify(updatedTabs))
     setTabName('')
+    setChords([]) // Clear current chords after saving
+    setLyrics('') // Clear lyrics after saving
   }
 
   const loadTab = (index) => {
     const tab = savedTabs[index]
     setLyrics(tab.lyrics)
-    setChords(tab.chords)
+    setChords(tab.chords || []) // Load saved chords or empty array
   }
 
   const deleteTab = (index) => {
@@ -93,7 +114,7 @@ function App() {
     let y = 20
     
     doc.setFontSize(16)
-    doc.text('Song Lyrics with Chords', 105, y, { align: 'center' })
+    doc.text('TigerLyrics - Song Lyrics with Chords', 105, y, { align: 'center' })
     y += 20
     
     doc.setFontSize(12)
@@ -115,7 +136,7 @@ function App() {
       }
     })
     
-    doc.save('lyrics_with_chords.pdf')
+    doc.save('tigerlyrics.pdf')
   }
 
   const renderLyricsWithChords = () => {
@@ -148,12 +169,13 @@ function App() {
   const chordTypes = [
     'A', 'Am', 'A7', 'B', 'Bm', 'B7', 'C', 'Cm', 'C7',
     'D', 'Dm', 'D7', 'E', 'Em', 'E7', 'F', 'Fm', 'F7',
-    'G', 'Gm', 'G7'
+    'G', 'Gm', 'G7',
+    ...customNotes
   ]
 
   return (
     <div className="container">
-      <h1>Lyrics and Chords Editor</h1>
+      <h1>TigerLyrics - Lyrics and Chords Editor</h1>
       
       <div className="controls">
         <input
