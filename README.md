@@ -40,6 +40,6 @@ None required for basic functionality.
 
 Check license file
 
-##To-do
+## To-do
 Piano
 Chords-to-sound
