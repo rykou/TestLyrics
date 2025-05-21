@@ -1,4 +1,5 @@
 # Lyrics and Chords Editor
+![msedge_b8BEuKT5Nu](https://github.com/user-attachments/assets/7c175bd9-5d2a-4258-a65c-e549ea9b1ca2)
 
 A React application for editing song lyrics with chord annotations.
 
